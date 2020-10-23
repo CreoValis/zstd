@@ -215,6 +215,7 @@ static void usage_advanced(const char* programName)
     DISPLAYOUT( "--stream-size=# : specify size of streaming input from `stdin` \n");
     DISPLAYOUT( "--size-hint=# optimize compression parameters for streaming input of approximately this size \n");
     DISPLAYOUT( "--target-compressed-block-size=# : generate compressed block of approximately targeted size \n");
+    DISPLAYOUT( "--source-frame-size=# : divide the input file into blocks of specified size \n");
     DISPLAYOUT( "--no-dictID : don't write dictID into header (dictionary compression only) \n");
     DISPLAYOUT( "--[no-]compress-literals : force (un)compressed literals \n");
 
@@ -766,6 +767,7 @@ int main(int const argCount, const char* argv[])
     unsigned dictID = 0;
     size_t streamSrcSize = 0;
     size_t targetCBlockSize = 0;
+    size_t srcFrameSize = 0;
     size_t srcSizeHint = 0;
     int dictCLevel = g_defaultDictCLevel;
     unsigned dictSelect = g_defaultSelectivityLevel;
@@ -922,6 +924,7 @@ int main(int const argCount, const char* argv[])
                 if (longCommandWArg(&argument, "--zstd=")) { if (!parseCompressionParameters(argument, &compressionParams)) { badusage(programName); CLEAN_RETURN(1); } continue; }
                 if (longCommandWArg(&argument, "--stream-size=")) { streamSrcSize = readSizeTFromChar(&argument); continue; }
                 if (longCommandWArg(&argument, "--target-compressed-block-size=")) { targetCBlockSize = readSizeTFromChar(&argument); continue; }
+                if (longCommandWArg(&argument, "--source-frame-size=")) { srcFrameSize = readSizeTFromChar(&argument); continue; }
                 if (longCommandWArg(&argument, "--size-hint=")) { srcSizeHint = readSizeTFromChar(&argument); continue; }
                 if (longCommandWArg(&argument, "--output-dir-flat")) { NEXT_FIELD(outDirName); continue; }
 #ifdef UTIL_HAS_MIRRORFILELIST
@@ -1353,6 +1356,7 @@ int main(int const argCount, const char* argv[])
         FIO_setRsyncable(prefs, rsyncable);
         FIO_setStreamSrcSize(prefs, streamSrcSize);
         FIO_setTargetCBlockSize(prefs, targetCBlockSize);
+        FIO_setSrcFrameSize(prefs, srcFrameSize);
         FIO_setSrcSizeHint(prefs, srcSizeHint);
         FIO_setLiteralCompressionMode(prefs, literalCompressionMode);
         if (adaptMin > cLevel) cLevel = adaptMin;
