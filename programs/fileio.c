@@ -308,6 +308,7 @@ struct FIO_prefs_s {
     int ldmHashRateLog;
     size_t streamSrcSize;
     size_t targetCBlockSize;
+    size_t srcFrameSize;
     int srcSizeHint;
     int testMode;
     ZSTD_literalCompressionMode_e literalCompressionMode;
@@ -379,6 +380,7 @@ FIO_prefs_t* FIO_createPreferences(void)
     ret->ldmHashRateLog = FIO_LDM_PARAM_NOTSET;
     ret->streamSrcSize = 0;
     ret->targetCBlockSize = 0;
+    ret->srcFrameSize = 0;
     ret->srcSizeHint = 0;
     ret->testMode = 0;
     ret->literalCompressionMode = ZSTD_lcm_auto;
@@ -480,6 +482,10 @@ void FIO_setStreamSrcSize(FIO_prefs_t* const prefs, size_t streamSrcSize) {
 
 void FIO_setTargetCBlockSize(FIO_prefs_t* const prefs, size_t targetCBlockSize) {
     prefs->targetCBlockSize = targetCBlockSize;
+}
+
+void FIO_setSrcFrameSize(FIO_prefs_t *const prefs, size_t srcFrameSize) {
+   prefs->srcFrameSize = srcFrameSize;
 }
 
 void FIO_setSrcSizeHint(FIO_prefs_t* const prefs, size_t srcSizeHint) {
