@@ -1513,15 +1513,26 @@ FIO_compressFilename_internal(FIO_ctx_t* const fCtx,
     UTIL_time_t const timeStart = UTIL_getTime();
     clock_t const cpuStart = clock();
     U64 readsize = 0;
+    U64 readsizeCurrent = 0;
     U64 compressedfilesize = 0;
-    U64 const fileSize = UTIL_getFileSize(srcFileName);
+    U64 fileSize = UTIL_getFileSize(srcFileName);
+    U64 blockSizeCurrent = 0;
     DISPLAYLEVEL(5, "%s: %u bytes \n", srcFileName, (unsigned)fileSize);
 
     /* compression format selection */
     switch (prefs->compressionType) {
         default:
         case FIO_zstdCompression:
-            compressedfilesize = FIO_compressZstdFrame(fCtx, prefs, &ress, srcFileName, fileSize, compressionLevel, &readsize);
+            while (fileSize) {
+               if (prefs->srcFrameSize)
+                  blockSizeCurrent = fileSize>prefs->srcFrameSize ? prefs->srcFrameSize : fileSize;
+               else
+                  blockSizeCurrent=fileSize;
+               readsizeCurrent = 0;
+               compressedfilesize += FIO_compressZstdFrame(fCtx, prefs, &ress, srcFileName, blockSizeCurrent, compressionLevel, &readsizeCurrent);
+               fileSize -= blockSizeCurrent;
+               readsize += readsizeCurrent;
+            }
             break;
 
         case FIO_gzipCompression:
